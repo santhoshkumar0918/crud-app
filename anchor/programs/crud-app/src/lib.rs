@@ -5,8 +5,7 @@ use anchor_lang::prelude::*;
 declare_id!("AsjZ3kWAUSQRNt2pZVeJkywhZ6gpLpHZmJjduPmKZDZZ");
 
 #[program]
-pub mod counter{
-    // use anchor_lang::solana_program::message;
+pub mod crudapp{
 
 
     use super::*;
