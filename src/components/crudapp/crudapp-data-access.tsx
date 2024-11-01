@@ -9,11 +9,12 @@ import toast from 'react-hot-toast'
 import {useCluster} from '../cluster/cluster-data-access'
 import {useAnchorProvider} from '../solana/solana-provider'
 import {useTransactionToast} from '../ui/ui-layout'
+import { title } from 'process'
 
 interface CreateEntryArgs {
-  owner : PublicKey,
-  title : string,
-  message : string ,
+  owner : PublicKey;
+  title : string;
+  message : string;
 }
 
 export function useCrudappProgram() {
@@ -34,13 +35,19 @@ export function useCrudappProgram() {
     queryFn: () => connection.getParsedAccountInfo(programId),
   })
 
- const createEntry = useMutation<string,Error,CreateEntryArgs>{{
-    mutationKey : [`journaEntry` , `create`,{cluster}],
-    mutationfn : async ({title , message  }) => {
+ const createEntry = useMutation<string,Error,CreateEntryArgs>({
+    mutationKey: [`journaEntry` , `create`,{cluster}],
+    mutationFn: async ({title , message , }) => {
        return program.methods.createJournalEntry(title,message).rpc();
     },
-    onSuccess
- }}
+    onSuccess: (signature)=>{
+        transactionToast(signature)
+        accounts.refetch();
+    },                                                  
+    onError : (error) => {
+      toast.error(`Error creating enter : ${error.message}`);
+    },
+ })
 
   return {
     program,
@@ -56,16 +63,41 @@ export function useCrudappProgramAccount({ account }: { account: PublicKey }) {
   const transactionToast = useTransactionToast()
   const { program, accounts } = useCrudappProgram()
 
-  const createEntry = useMutation<string,Error,CreateEntryArgs>
+  const updateEntry = useMutation<string,Error,CreateEntryArgs>({
+      mutationKey : [`journalEntry` , `update`, {cluster}],
+      mutationFn : async ({title ,message }) => {
+        return program.methods.updateJounralEntry(title,message).rpc()
+      },
+
+      onSuccess: (signature)=>{
+        transactionToast(signature)
+        accounts.refetch();
+    },                                                  
+    onError : (error) => {
+      toast.error(`Error creating enter : ${error.message}`);
+    },
+  })
+
+  const deleteEntry = useMutation({
+    mutationKey : [`journalEntry`,`delete`,{cluster}],
+    mutationFn : async(title : string) => {
+      return program.methods.deleteJounralEntry(title).rpc()
+    },
+
+    onSuccess: (signature)=>{
+      transactionToast(signature)
+      accounts.refetch();
+  },  
+  })
 
   const accountQuery = useQuery({
     queryKey: ['crudapp', 'fetch', { cluster, account }],
     queryFn: () => program.account.journalEntryState.fetch(account),
   })
 
-  
+ 
 
   return {
-    accountQuery,
+    accountQuery,updateEntry,deleteEntry
   }
 }
