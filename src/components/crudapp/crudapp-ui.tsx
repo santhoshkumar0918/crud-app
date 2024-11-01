@@ -88,12 +88,12 @@ export function CrudappList() {
 }
 
 function CrudappCard({ account }: { account: PublicKey }) {
-  const { accountQuery, incrementMutation, setMutation, decrementMutation, closeMutation } = useCrudappProgramAccount({
+  const { accountQuery,updateEntry,deleteEntry} = useCrudappProgramAccount({
     account,
   })
-
-  const count = useMemo(() => accountQuery.data?.count ?? 0, [accountQuery.data?.count])
-
+   const [message,setMessage] =  useState("")
+   const {publicKey}
+ 
   return accountQuery.isLoading ? (
     <span className="loading loading-spinner loading-lg"></span>
   ) : (
