@@ -130,7 +130,7 @@ function CrudappCard({ account }: { account: PublicKey }) {
             <button
               className="btn btn-xs lg:btn-md btn-outline"
               onClick={handleSubmit}
-              disabled={updateEntry.isPending || isFormValid}
+              disabled={!isFormValid || updateEntry.isPending}            
             >
               Update Journal Entry
             </button>
